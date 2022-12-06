@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #define FILEPATH "C:\\Users\\schwa\\Projekte\\adventofcode\\2022\\06\\input.txt"
-#define BUFFERSZ 4
+#define BUFFERSZ 14
 
 int isUnique(char *a, int size) {
   for(int i = 0; i < size; i++) {
