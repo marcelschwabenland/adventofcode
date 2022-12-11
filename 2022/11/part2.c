@@ -67,7 +67,7 @@ void throw_item_to(int item_number, int throw_target, struct Monkey from, struct
   to.items[++(*to.number_of_items) - 1] = from.items[item_number];
 }
 
-void monkey_turn(struct Monkey active_monkey, struct Monkey *monkeys) {
+void monkey_turn(struct Monkey active_monkey, struct Monkey *monkeys, int mod) {
   // inspect item i
   for (int item_number = 0; item_number < (*active_monkey.number_of_items); item_number++) {
     int throw_target = 0;
@@ -77,7 +77,7 @@ void monkey_turn(struct Monkey active_monkey, struct Monkey *monkeys) {
     // run operation on item's worry level
     run_monkey_operation(active_monkey, item_number);
     // divide item's worry level by 3
-    // active_monkey.items[item_number] /= 3;
+    active_monkey.items[item_number] %= mod;
     // printf("    Monkey gets bored with item. Worry level is divided by 3 to %d.\n", active_monkey.items[item_number]);
     // run test to decide what to do
     throw_target = run_monkey_test(active_monkey, item_number);
@@ -91,19 +91,13 @@ void monkey_turn(struct Monkey active_monkey, struct Monkey *monkeys) {
   (*active_monkey.number_of_items) = 0;
 }
 
-void game_round(struct Monkey *monkeys, unsigned long long mod) {
+void game_round(struct Monkey *monkeys, int mod) {
   // order of monkeys turn 0, 1, 2, 3
   // each monkey gets one turn
   for (int i = 0; i < MAX_ROUND; i++) {
     for (int monkey_number = 0; monkey_number < MAX_MONKEYS; monkey_number++) {
       // printf("Monkey %d:\n", monkey_number);
-      monkey_turn(monkeys[monkey_number], monkeys);
-    }
-
-    for (int monkey_number = 0; monkey_number < MAX_MONKEYS; monkey_number++) {
-      for (int item_number = 0; item_number < *monkeys[monkey_number].number_of_items; item_number++) {
-        monkeys[monkey_number].items[item_number] %= mod;
-      }
+      monkey_turn(monkeys[monkey_number], monkeys, mod);
     }
 
     if (i + 1 == 1 || i + 1 == 20 || i + 1 == 1000 || i + 1 == 2000 || i + 1 == 3000 || i + 1 == 4000 || i + 1 == 5000 || i + 1 == 6000 || i + 1 == 7000 || i + 1 == 8000 || i + 1 == 9000 || i + 1 == 10000) {
@@ -118,7 +112,7 @@ void game_round(struct Monkey *monkeys, unsigned long long mod) {
 int main() {
   FILE *fptr = fopen("input.txt", "r");
   char buffer[BUFFERSZ] = {'\0'};
-  unsigned long long mod = 1;
+  int mod = 1;
 
   struct Monkey *monkeys = malloc(sizeof(struct Monkey) * MAX_MONKEYS);
 
@@ -189,7 +183,7 @@ int main() {
 
   game_round(monkeys, mod);
 
-  int highest = 0, second_highest = 0;
+  unsigned long long highest = 0, second_highest = 0;
   printf("\n");
   for (int i = 0; i < MAX_MONKEYS; i++) {
     if (*monkeys[i].business > highest && *monkeys[i].business > second_highest) {
@@ -200,7 +194,7 @@ int main() {
     }
   }
 
-  printf("%d * %d = %zu\n", highest, second_highest, (highest * second_highest));
+  printf("%d * %d = %llu\n", highest, second_highest, (highest * second_highest));
 
   free(monkeys);
   fclose(fptr);
